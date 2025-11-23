@@ -4,7 +4,7 @@ A simple, beautiful, and fast web-based calculator designed specifically for **p
 
 No installation required — just open in any browser (mobile or desktop).
 
-**Live Demo**: [Open Calculator](https://your-username.github.io/print-calculator/) *(replace with your actual link or remove if local)*
+**Live Demo**: [Open Calculator](https://virajray.github.io/print-calculator/) *(replace with your actual link or remove if local)*
 
 ---
 
@@ -59,7 +59,7 @@ text- **Reset** button to clear everything
 print-calculator/ <br>
 ├── index.html         ← Main file (open this) <br>
 └── README.md          ← This file <br>
-text---
+
 
 ### Customization (Optional)
 
