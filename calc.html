@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Printing Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 420px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .calc-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      border: none;
+      font-size: 28px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-minus { background: #ff6b6b; color: white; }
+    .btn-plus { background: #ff6b6b; color: white; }
+    .btn-minus:hover, .btn-plus:hover { background: #ff5252; transform: translateY(-2px); }
+
+    .input-box {
+      width: 100px;
+      height: 60px;
+      background: #ffe5e0;
+      border-radius: 12px;
+      border: none;
+      font-size: 36px;
+      font-weight: 600;
+      text-align: center;
+      color: #333;
+    }
+    .calc-info {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .total-display {
+      background: #ffe5e0;
+      color: #333;
+      padding: 10px 16px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 30px 0;
+      transition: background 0.2s;
+    }
+    .generate-btn:hover {
+      background: #ff5252;
+    }
+    .result-box {
+      background: #ffe5e0;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .result-box strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="section">
+      <h2>B n WSheets</h2>
+      <div class="calc-row">
+        <button class="btn btn-minus" onclick="adjust('bw', -1)">−</button>
+        <input type="number" id="bw-input" class="input-box" value="2" min="0" onkeydown="handleEnter(event, 'bw')"/>
+        <button class="btn btn-plus" onclick="adjust('bw', 1)">+</button>
+      </div>
+      <div class="calc-info" id="bw-calculation">1+2+3</div>
+      <div class="total-display" id="bw-total">Total: 5</div>
+    </div>
+
+    <div class="section">
+      <h2>Color Sheets</h2>
+      <div class="calc-row">
+        <button class="btn btn-minus" onclick="adjust('color', -1)">−</button>
+        <input type="number" id="color-input" class="input-box" value="1" min="0" onkeydown="handleEnter(event, 'color')"/>
+        <button class="btn btn-plus" onclick="adjust('color', 1)">+</button>
+      </div>
+      <div class="calc-info" id="color-calculation">1+2+3</div>
+      <div class="total-display" id="color-total">Total: 5</div>
+    </div>
+
+    <button class="generate-btn" onclick="generateTotal()">Generate total and texts</button>
+
+    <div class="result-box" id="result">
+      Total B&W sheets: 5<br>
+      Total Color sheets: 5<br><br>
+      <strong>total amount Rs. 190</strong>
+    </div>
+  </div>
+
+  <script>
+    // Store history of added numbers for each type
+    const bwHistory = [1, 2, 3];     // initial example
+    const colorHistory = [1, 2, 3];  // initial example
+
+    // Initial totals
+    let bwTotal = bwHistory.reduce((a, b) => a + b, 0);
+    let colorTotal = colorHistory.reduce((a, b) => a + b, 0);
+
+    // Update display on load
+    updateDisplay();
+
+    function adjust(type, delta) {
+      const input = document.getElementById(type + '-input');
+      let val = parseInt(input.value) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+      addToHistory(type, val);
+    }
+
+    function handleEnter(e, type) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const input = e.target;
+        let val = parseInt(input.value) || 0;
+        if (val > 0) {
+          addToHistory(type, val);
+          input.value = ''; // clear after adding
+        }
+      }
+    }
+
+    function addToHistory(type, value) {
+      if (value <= 0) return;
+
+      if (type === 'bw') {
+        bwHistory.push(value);
+        bwTotal += value;
+      } else {
+        colorHistory.push(value);
+        colorTotal += value;
+      }
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      // B&W
+      document.getElementById('bw-calculation').textContent = bwHistory.join('+') || '0';
+      document.getElementById('bw-total').textContent = `Total: ${bwTotal}`;
+
+      // Color
+      document.getElementById('color-calculation').textContent = colorHistory.join('+') || '0';
+      document.getElementById('color-total').textContent = `Total: ${colorTotal}`;
+    }
+
+    function generateTotal() {
+      const bwSheets = bwTotal;
+      const colorSheets = colorTotal;
+
+      const bwAmount = bwSheets * 8;
+      const colorAmount = colorSheets * 30;
+      const grandTotal = bwAmount + colorAmount;
+
+      const resultHTML = `
+        Total B&W sheets: ${bwSheets}<br>
+        Total Color sheets: ${colorSheets}<br><br>
+        <strong>total amount Rs. ${grandTotal}</strong>
+      `;
+
+      document.getElementById('result').innerHTML = resultHTML;
+    }
+  </script>
+</body>
+</html>
