@@ -50,8 +50,7 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-minus { background: #ff6b6b; color: white; }
-    .btn-plus { background: #ff6b6b; color: white; }
+    .btn-minus, .btn-plus { background: #ff6b6b; color: white; }
     .btn-minus:hover, .btn-plus:hover { background: #ff5252; transform: translateY(-2px); }
 
     .input-box {
@@ -70,6 +69,7 @@
       font-size: 14px;
       color: #888;
       margin-bottom: 8px;
+      min-height: 20px;
     }
     .total-display {
       background: #ffe5e0;
@@ -80,22 +80,32 @@
       font-weight: 600;
       font-size: 18px;
     }
-    .generate-btn {
-      width: 100%;
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin: 30px 0;
+    }
+    .generate-btn, .reset-btn {
+      flex: 1;
       padding: 16px;
-      background: #ff6b6b;
-      color: white;
       border: none;
       border-radius: 12px;
       font-size: 18px;
       font-weight: 600;
       cursor: pointer;
-      margin: 30px 0;
       transition: background 0.2s;
     }
-    .generate-btn:hover {
-      background: #ff5252;
+    .generate-btn {
+      background: #ff6b6b;
+      color: white;
     }
+    .generate-btn:hover { background: #ff5252; }
+    .reset-btn {
+      background: #ddd;
+      color: #555;
+    }
+    .reset-btn:hover { background: #ccc; }
+
     .result-box {
       background: #ffe5e0;
       padding: 20px;
@@ -113,64 +123,67 @@
 
   <div class="container">
     <div class="section">
-      <h2>B n WSheets</h2>
+      <h2>B n W Sheets</h2>
       <div class="calc-row">
-        <button class="btn btn-minus" onclick="adjust('bw', -1)">−</button>
-        <input type="number" id="bw-input" class="input-box" value="2" min="0" onkeydown="handleEnter(event, 'bw')"/>
+        <button class="btn btn-minus" onclick="adjust('bw', -1)">-</button>
+        <input type="number" id="bw-input" class="input-box" value="" placeholder="0" min="0" onkeydown="handleEnter(event, 'bw')"/>
         <button class="btn btn-plus" onclick="adjust('bw', 1)">+</button>
       </div>
-      <div class="calc-info" id="bw-calculation">1+2+3</div>
-      <div class="total-display" id="bw-total">Total: 5</div>
+      <div class="calc-info" id="bw-calculation">-</div>
+      <div class="total-display" id="bw-total">Total: 0</div>
     </div>
 
     <div class="section">
       <h2>Color Sheets</h2>
       <div class="calc-row">
-        <button class="btn btn-minus" onclick="adjust('color', -1)">−</button>
-        <input type="number" id="color-input" class="input-box" value="1" min="0" onkeydown="handleEnter(event, 'color')"/>
+        <button class="btn btn-minus" onclick="adjust('color', -1)">-</button>
+        <input type="number" id="color-input" class="input-box" value="" placeholder="0" min="0" onkeydown="handleEnter(event, 'color')"/>
         <button class="btn btn-plus" onclick="adjust('color', 1)">+</button>
       </div>
-      <div class="calc-info" id="color-calculation">1+2+3</div>
-      <div class="total-display" id="color-total">Total: 5</div>
+      <div class="calc-info" id="color-calculation">-</div>
+      <div class="total-display" id="color-total">Total: 0</div>
     </div>
 
-    <button class="generate-btn" onclick="generateTotal()">Generate total and texts</button>
+    <div class="btn-row">
+      <button class="generate-btn" onclick="generateTotal()">Generate total and texts</button>
+      <button class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>
 
     <div class="result-box" id="result">
-      Total B&W sheets: 5<br>
-      Total Color sheets: 5<br><br>
-      <strong>total amount Rs. 190</strong>
+      Total B&W sheets: 0<br>
+      Total Color sheets: 0<br><br>
+      <strong>total amount Rs. 0</strong>
     </div>
   </div>
 
   <script>
-    // Store history of added numbers for each type
-    const bwHistory = [1, 2, 3];     // initial example
-    const colorHistory = [1, 2, 3];  // initial example
-
-    // Initial totals
-    let bwTotal = bwHistory.reduce((a, b) => a + b, 0);
-    let colorTotal = colorHistory.reduce((a, b) => a + b, 0);
-
-    // Update display on load
-    updateDisplay();
+    // History arrays and totals
+    let bwHistory = [];
+    let colorHistory = [];
+    let bwTotal = 0;
+    let colorTotal = 0;
 
     function adjust(type, delta) {
       const input = document.getElementById(type + '-input');
-      let val = parseInt(input.value) || 0;
-      val = Math.max(0, val + delta);
-      input.value = val;
-      addToHistory(type, val);
+      letval = parseInt(input.value) || 0;
+      letval = Math.max(0, letval + delta);
+      input.value = letval;
+      
+      // Auto-add if value > 0 and user clicked +/-
+      if (letval > 0) {
+        addToHistory(type, letval);
+        input.value = ''; // clear input after adding
+      }
     }
 
     function handleEnter(e, type) {
       if (e.key === 'Enter') {
         e.preventDefault();
         const input = e.target;
-        let val = parseInt(input.value) || 0;
+        const val = parseInt(input.value) || 0;
         if (val > 0) {
           addToHistory(type, val);
-          input.value = ''; // clear after adding
+          input.value = '';
         }
       }
     }
@@ -190,30 +203,43 @@
 
     function updateDisplay() {
       // B&W
-      document.getElementById('bw-calculation').textContent = bwHistory.join('+') || '0';
+      const bwCalc = bwHistory.length > 0 ? bwHistory.join('+') : '-';
+      document.getElementById('bw-calculation').textContent = bwCalc;
       document.getElementById('bw-total').textContent = `Total: ${bwTotal}`;
 
       // Color
-      document.getElementById('color-calculation').textContent = colorHistory.join('+') || '0';
+      const colorCalc = colorHistory.length > 0 ? colorHistory.join('+') : '-';
+      document.getElementById('color-calculation').textContent = colorCalc;
       document.getElementById('color-total').textContent = `Total: ${colorTotal}`;
     }
 
     function generateTotal() {
       const bwSheets = bwTotal;
       const colorSheets = colorTotal;
+      const totalAmount = (bwSheets * 8) + (colorSheets * 30);
 
-      const bwAmount = bwSheets * 8;
-      const colorAmount = colorSheets * 30;
-      const grandTotal = bwAmount + colorAmount;
-
-      const resultHTML = `
+      document.getElementById('result').innerHTML = `
         Total B&W sheets: ${bwSheets}<br>
         Total Color sheets: ${colorSheets}<br><br>
-        <strong>total amount Rs. ${grandTotal}</strong>
+        <strong>total amount Rs. ${totalAmount}</strong>
       `;
-
-      document.getElementById('result').innerHTML = resultHTML;
     }
+
+    function resetAll() {
+      bwHistory = [];
+      colorHistory = [];
+      bwTotal = 0;
+      colorTotal = 0;
+
+      document.getElementById('bw-input').value = '';
+      document.getElementById('color-input').value = '';
+      
+      updateDisplay();
+      generateTotal(); // also reset the bottom result
+    }
+
+    // Initial display
+    updateDisplay();
   </script>
 </body>
 </html>
